@@ -1,48 +1,52 @@
-from zoodb import *
 from debug import *
+from zoodb import *
+import rpclib
+import sys
 
-import time
+sys.path.append(os.getcwd())
+import readconf
 
-def transfer(sender, recipient, zoobars):
-    persondb = person_setup()
-    senderp = persondb.query(Person).get(sender)
-    recipientp = persondb.query(Person).get(recipient)
+@catch_err
+def register(username):
+    host = readconf.read_conf().lookup_host('bank')
+    log(f"host = {host}")
+    with rpclib.client_connect(host) as c:
+        log("Conectado")
+        ret = c.call('register', username=username)
+        return ret
+    
+@catch_err
+def transfer(sender, recipient, zoobars, token):
+    host = readconf.read_conf().lookup_host('bank')
+    log(f"host = {host}")
+    with rpclib.client_connect(host) as c:
+        log("Conectado")
+        ret = c.call('transfer', sender=sender, recipient=recipient, zoobars=zoobars, token=token)
+        return ret
 
-    sender_balance = senderp.zoobars - zoobars
-    recipient_balance = recipientp.zoobars + zoobars
+@catch_err
+def profile_xfer(sender, recipient, zoobars):
+    host = readconf.read_conf().lookup_host('bank')
+    log(f"host = {host}")
+    with rpclib.client_connect(host) as c:
+        log("Conectado")
+        ret = c.call('profile_xfer', sender=sender, recipient=recipient, zoobars=zoobars)
+        return ret
 
-    if sender_balance < 0 or recipient_balance < 0:
-        raise ValueError()
-
-    senderp.zoobars = sender_balance
-    recipientp.zoobars = recipient_balance
-    persondb.commit()
-
-    transfer = Transfer()
-    transfer.sender = sender
-    transfer.recipient = recipient
-    transfer.amount = zoobars
-    transfer.time = time.asctime()
-
-    transferdb = transfer_setup()
-    transferdb.add(transfer)
-    transferdb.commit()
-
+@catch_err
 def balance(username):
-    db = person_setup()
-    person = db.query(Person).get(username)
-    return person.zoobars
+    host = readconf.read_conf().lookup_host('bank')
+    log(f"host = {host}")
+    with rpclib.client_connect(host) as c:
+        log("Conectado")
+        ret = c.call('balance', username=username)
+        return ret
 
+@catch_err
 def get_log(username):
-    db = transfer_setup()
-    l = db.query(Transfer).filter(or_(Transfer.sender==username,
-                                      Transfer.recipient==username))
-    r = []
-    for t in l:
-       r.append({'time': t.time,
-                 'sender': t.sender ,
-                 'recipient': t.recipient,
-                 'amount': t.amount })
-    return r 
-
-
+    host = readconf.read_conf().lookup_host('bank')
+    log(f"host = {host}")
+    with rpclib.client_connect(host) as c:
+        log("Conectado")
+        ret = c.call('get_log', username=username)
+        return ret

@@ -21,6 +21,8 @@ if len(sys.argv) != 2:
     print(sys.argv[0], "too few args")
 
 s = AuthRpcServer()
+person_setup()
+cred_setup()
 s.run_fork(sys.argv[1])
 
 

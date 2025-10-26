@@ -28,6 +28,12 @@ class User(object):
     def addRegistration(self, username, password):
         token = auth_client.register(username, password)
         if token is not None:
+            persondb = person_setup()
+            newperson = Person()
+            newperson.username = username
+            persondb.add(newperson)
+            persondb.commit()
+            bank.register(username)
             return self.loginCookie(username, token)
         else:
             return None

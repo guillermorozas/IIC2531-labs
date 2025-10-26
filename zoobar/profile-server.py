@@ -33,7 +33,7 @@ class ProfileAPIServer(rpclib.RpcServer):
         return self.visitor
 
     def rpc_get_xfers(self, username):
-        return bank_client.get_log(username)
+        return bank.get_log(username)
 
     def rpc_get_user_info(self, username):
         return { 'username': self.user,
@@ -42,7 +42,7 @@ class ProfileAPIServer(rpclib.RpcServer):
                }
 
     def rpc_xfer(self, target, zoobars):
-        bank.transfer(self.user, target, zoobars)
+        bank.profile_xfer(self.user, target, zoobars)
 
 def run_profile(pcode, profile_api_client):
     globals = {'api': profile_api_client}
@@ -50,10 +50,10 @@ def run_profile(pcode, profile_api_client):
 
 class ProfileServer(rpclib.RpcServer):
     def rpc_run(self, pcode, user, visitor):
-        uid = 0
+        uid = 6858
 
         userdir = '/tmp'
-
+        
         (sa, sb) = socket.socketpair(socket.AF_UNIX, socket.SOCK_STREAM, 0)
         pid = os.fork()
         if pid == 0:

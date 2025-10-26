@@ -55,6 +55,8 @@ def cred_setup():
 def transfer_setup():
     return dbsetup("transfer", TransferBase)
 
+def bank_setup():
+    return dbsetup("bank", BankBase)
 import sys
 if __name__ == "__main__":
     if len(sys.argv) < 2:
